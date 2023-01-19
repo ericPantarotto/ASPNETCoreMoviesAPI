@@ -7,7 +7,7 @@ namespace MoviesAPI.Controllers
 {
     // [Route("api/genres")]
     [Route("api/[controller]")]
-    public class GenresController
+    public class GenresController: ControllerBase
     {
         private readonly IRepository repository;
 
@@ -28,26 +28,46 @@ namespace MoviesAPI.Controllers
         //[HttpGet("{Id}")] // api/genres/1 
         //[HttpGet("{Id}/{param2=felipe}")] // providing a default value for a second optional parameter
         [HttpGet("{Id:int}/{param2=felipe}")] // specifying a route constraint => you will get a 404 if the parameter does not have the correct type
-        public Genre Get(int Id, string param2)
+        public ActionResult<Genre> Get(int Id, string param2)
         {
-            return repository.GetGenreById(Id);
+            var genre = repository.GetGenreById(Id);
+            if (genre is null)
+            {
+                return NotFound();
+            }
+            return genre;
         }
 
-        
-        [HttpPost]
-        public void Post()
+        [HttpGet("IActionResult/{Id:int}")]  //prefer ActionResult as you can define the type you want to return, with IActionResult you can define whatever type we want
+        public IActionResult Get(int Id)
         {
+            var genre = repository.GetGenreById(Id);
+            if (genre is null)
+            {
+                return NotFound();
+            }
+            return Ok(genre);
+            //return Ok(2);
+            //return Ok("anystring");
+        }
 
+
+        [HttpPost]
+        public ActionResult Post()
+        {
+            return NoContent();
         }
 
         [HttpPut]
-        public void Put()
+        public ActionResult Put()
         {
+            return NoContent();
         }
 
         [HttpDelete]
-        public void Delete()
+        public ActionResult Delete()
         {
+            return NoContent();
         }
 
     }
