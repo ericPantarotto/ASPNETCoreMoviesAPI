@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using MoviesAPI.Entities;
 using MoviesAPI.Services;
@@ -19,9 +20,9 @@ namespace MoviesAPI.Controllers
         [HttpGet] // api/genres
         [HttpGet("list")] // api/genres/list
         [HttpGet("/allgenres")] //overriding the route as we start with /
-        public List<Genre> Get()
+        public async Task<List<Genre>> Get()
         {
-            return repository.GetAllGenres();
+            return await repository.GetAllGenres();
         }
 
         //[HttpGet("example")] // api/genres/example  - https://localhost:5001/api/genres/example?id=1        
