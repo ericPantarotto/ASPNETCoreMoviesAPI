@@ -9,6 +9,7 @@ namespace MoviesAPI.Controllers
 {
     // [Route("api/genres")]
     [Route("api/[controller]")]
+    [ApiController]
     public class GenresController: ControllerBase
     {
         private readonly IRepository repository;
@@ -33,10 +34,10 @@ namespace MoviesAPI.Controllers
         [HttpGet("{Id:int}")] // specifying a route constraint => you will get a 404 if the parameter does not have the correct type
         public ActionResult<Genre> Get([FromRoute] int Id, [BindRequired, FromHeader] string param2)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
+            //if (!ModelState.IsValid)
+            //{
+            //    return BadRequest(ModelState);
+            //}
 
             var genre = repository.GetGenreById(Id);
             if (genre is null)
@@ -63,12 +64,22 @@ namespace MoviesAPI.Controllers
         [HttpPost]
         public ActionResult Post([FromBody] Genre genre)
         {
+            //if (!ModelState.IsValid)
+            //{
+            //    return BadRequest(ModelState);
+            //}
+
             return NoContent();
         }
 
         [HttpPut]
         public ActionResult Put([FromBody] Genre genre)
         {
+            //if (!ModelState.IsValid)
+            //{
+            //    return BadRequest(ModelState);
+            //}
+
             return NoContent();
         }
 
