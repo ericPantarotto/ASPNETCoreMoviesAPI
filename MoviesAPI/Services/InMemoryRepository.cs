@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using MoviesAPI.Entities;
 
 namespace MoviesAPI.Services
@@ -15,9 +16,9 @@ namespace MoviesAPI.Services
                 new Genre(){ Id = 2, Name = "Action" }
             };
         }
-        public List<Genre> GetAllGenres()
+        public async Task<List<Genre>> GetAllGenres()
         {
-            return _genres;
+            return await Task.FromResult( _genres);
         }
 
         public Genre GetGenreById(int Id)
