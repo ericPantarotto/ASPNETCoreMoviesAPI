@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 using MoviesAPI.Entities;
 using MoviesAPI.Services;
 
@@ -28,9 +29,15 @@ namespace MoviesAPI.Controllers
         //[HttpGet("example")] // api/genres/example  - https://localhost:5001/api/genres/example?id=1        
         //[HttpGet("{Id}")] // api/genres/1 
         //[HttpGet("{Id}/{param2=felipe}")] // providing a default value for a second optional parameter
-        [HttpGet("{Id:int}/{param2=felipe}")] // specifying a route constraint => you will get a 404 if the parameter does not have the correct type
-        public ActionResult<Genre> Get(int Id, string param2)
+        //[HttpGet("{Id:int}/{param2=felipe}")] // specifying a route constraint => you will get a 404 if the parameter does not have the correct type
+        [HttpGet("{Id:int}")] // specifying a route constraint => you will get a 404 if the parameter does not have the correct type
+        public ActionResult<Genre> Get([FromRoute] int Id, [BindRequired, FromHeader] string param2)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
             var genre = repository.GetGenreById(Id);
             if (genre is null)
             {
@@ -54,13 +61,13 @@ namespace MoviesAPI.Controllers
 
 
         [HttpPost]
-        public ActionResult Post()
+        public ActionResult Post([FromBody] Genre genre)
         {
             return NoContent();
         }
 
         [HttpPut]
-        public ActionResult Put()
+        public ActionResult Put([FromBody] Genre genre)
         {
             return NoContent();
         }
