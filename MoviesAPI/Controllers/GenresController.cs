@@ -64,10 +64,7 @@ namespace MoviesAPI.Controllers
         [HttpPost]
         public ActionResult Post([FromBody] Genre genre)
         {
-            //if (!ModelState.IsValid)
-            //{
-            //    return BadRequest(ModelState);
-            //}
+            repository.AddGenre(genre);
 
             return NoContent();
         }
