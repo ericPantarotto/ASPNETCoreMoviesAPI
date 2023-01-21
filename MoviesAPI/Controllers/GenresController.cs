@@ -1,7 +1,10 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
+using Microsoft.Extensions.Logging;
 using MoviesAPI.Entities;
 using MoviesAPI.Services;
 
@@ -13,17 +16,22 @@ namespace MoviesAPI.Controllers
     public class GenresController: ControllerBase
     {
         private readonly IRepository repository;
+        private readonly ILogger<GenresController> logger;
 
-        public GenresController(IRepository repository)
+        public GenresController(IRepository repository, ILogger<GenresController> logger)
         {
             this.repository = repository;
+            this.logger = logger;
         }
 
         [HttpGet] // api/genres
         [HttpGet("list")] // api/genres/list
         [HttpGet("/allgenres")] //overriding the route as we start with /
+        [ResponseCache(Duration = 60)]
+        //[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         public async Task<List<Genre>> Get()
         {
+            logger.LogInformation("getting all the genres");
             return await repository.GetAllGenres();
         }
 
@@ -39,9 +47,12 @@ namespace MoviesAPI.Controllers
             //    return BadRequest(ModelState);
             //}
 
+            logger.LogDebug("GetById executing ...");
+
             var genre = repository.GetGenreById(Id);
             if (genre is null)
             {
+                logger.LogWarning($"Genre with Id {Id} not found");
                 return NotFound();
             }
             return genre;
