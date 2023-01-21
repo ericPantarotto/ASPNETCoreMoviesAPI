@@ -56,7 +56,7 @@ namespace MoviesAPI.Controllers
             if (genre is null)
             {
                 logger.LogWarning($"Genre with Id {Id} not found");
-                throw new ApplicationException();
+                //throw new ApplicationException();
                 return NotFound();
             }
             return genre;

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using MoviesAPI.Filters;
 
 namespace MoviesAPI.Controllers
 {
@@ -24,8 +25,10 @@ namespace MoviesAPI.Controllers
         }
 
         [HttpGet]
+        [ServiceFilter(typeof(LoggingFilter))]
         public IEnumerable<WeatherForecast> Get()
         {
+            _logger.LogInformation("Now in the endpoint, creating 5 forecasts");
             var rng = new Random();
             return Enumerable.Range(1, 5).Select(index => new WeatherForecast
             {
