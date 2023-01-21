@@ -31,7 +31,7 @@ namespace MoviesAPI.Controllers
         //[HttpGet("{Id}")] // api/genres/1 
         //[HttpGet("{Id}/{param2=felipe}")] // providing a default value for a second optional parameter
         //[HttpGet("{Id:int}/{param2=felipe}")] // specifying a route constraint => you will get a 404 if the parameter does not have the correct type
-        [HttpGet("{Id:int}")] // specifying a route constraint => you will get a 404 if the parameter does not have the correct type
+        [HttpGet("{Id:int}", Name = "getGenre")] // specifying a route constraint => you will get a 404 if the parameter does not have the correct type
         public ActionResult<Genre> Get([FromRoute] int Id, [BindRequired, FromHeader] string param2)
         {
             //if (!ModelState.IsValid)
@@ -66,7 +66,12 @@ namespace MoviesAPI.Controllers
         {
             repository.AddGenre(genre);
 
-            return NoContent();
+            // return at 201 Created At
+            return new CreatedAtRouteResult(routeName: "getGenre",
+                                            routeValues: new { Id = genre.Id }, // using anonymous type to pass the Id parameter expected for that route
+                                            value: genre);
+            
+            //return NoContent(); returning 204
         }
 
         [HttpPut]
