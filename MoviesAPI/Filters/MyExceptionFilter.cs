@@ -5,9 +5,9 @@ namespace MoviesAPI.Filters
 {
     public class MyExceptionFilter: ExceptionFilterAttribute
     {
-        private readonly ILogger<MyActionFilter> logger;
+        private readonly ILogger<MyExceptionFilter> logger;
 
-        public MyExceptionFilter(ILogger<MyActionFilter> logger)
+        public MyExceptionFilter(ILogger<MyExceptionFilter> logger)
         {
             this.logger = logger;
         }
