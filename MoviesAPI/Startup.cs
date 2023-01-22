@@ -31,45 +31,12 @@ namespace MoviesAPI
                 options.Filters.Add(typeof(MyExceptionFilter));
             }).AddXmlDataContractSerializerFormatters();
 
-            services.AddResponseCaching();
-            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer();
             services.AddSingleton<IRepository, InMemoryRepository>();
-            services.AddTransient<MyActionFilter>();
-            services.AddScoped<LoggingFilter>();
-            services.AddTransient<IHostedService, WriteToFileHostedService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILogger<Startup> logger)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
-            app.Use(async (context, next) =>
-            {
-                // we create a temporary response, as we are not allowed to read the body of a response 
-                using (var swapStream = new MemoryStream())
-                {
-                    var originalResponseBody = context.Response.Body;
-                    context.Response.Body = swapStream;
-                    await next.Invoke(); // to let the execution of the pipeline to continue
-
-                    swapStream.Seek(0, SeekOrigin.Begin);
-                    string responseBody = new StreamReader(swapStream).ReadToEnd();
-                    swapStream.Seek(0, SeekOrigin.Begin);
-
-                    await swapStream.CopyToAsync(originalResponseBody);
-                    context.Response.Body = originalResponseBody;
-
-                    logger.LogInformation(responseBody);
-                };
-            });
-
-            app.Map("/map1", (app) =>
-            {
-                app.Run(async context =>
-                {
-                    await context.Response.WriteAsync("I'm short-circuiting the pipeline");
-                });
-            });
-
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
@@ -78,8 +45,6 @@ namespace MoviesAPI
             app.UseHttpsRedirection();
 
             app.UseRouting();
-
-            app.UseResponseCaching(); //make sure to input after useRouting
 
             app.UseAuthentication();
             app.UseAuthorization();
