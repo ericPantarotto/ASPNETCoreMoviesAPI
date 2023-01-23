@@ -1,14 +1,12 @@
-using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Authorization;
+using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.ModelBinding;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using MoviesAPI.Data;
+using MoviesAPI.DTOs;
 using MoviesAPI.Entities;
-using MoviesAPI.Filters;
-using MoviesAPI.Services;
 
 namespace MoviesAPI.Controllers
 {
@@ -16,52 +14,73 @@ namespace MoviesAPI.Controllers
     [ApiController]
     public class GenresController: ControllerBase
     {
-        private readonly IRepository repository;
         private readonly ILogger<GenresController> logger;
+        private readonly ApplicationDbContext context;
+        private readonly IMapper mapper;
 
-        public GenresController(IRepository repository, ILogger<GenresController> logger)
+        public GenresController(ILogger<GenresController> logger,
+                                ApplicationDbContext context,
+                                IMapper mapper)
         {
-            this.repository = repository;
             this.logger = logger;
+            this.context = context;
+            this.mapper = mapper;
         }
 
         [HttpGet] // api/genres
-        public async Task<List<Genre>> Get()
+        public async Task<List<GenreDTO>> Get()
         {
-            return await repository.GetAllGenres();
+            List<Genre> genres = await context.Genres.AsNoTracking().ToListAsync();
+            return mapper.Map<List<GenreDTO>>(genres);
         }
 
         [HttpGet("{Id:int}", Name = "getGenre")]
-        public ActionResult<Genre> Get([FromRoute] int Id)
+        public async Task<ActionResult<GenreDTO>> Get([FromRoute] int Id)
         {
-
-            var genre = repository.GetGenreById(Id);
+            var genre = await context.Genres.FirstOrDefaultAsync(x => x.Id == Id);
             if (genre is null)
             {
                 return NotFound();
             }
-            return genre;
+            return mapper.Map<GenreDTO>(genre);
         }
 
         [HttpPost]
-        public ActionResult Post([FromBody] Genre genre)
+        public async Task<ActionResult> Post([FromBody] GenreCreationDTO genreCreation)
         {
-            repository.AddGenre(genre);
+            Genre genre = mapper.Map<Genre>(genreCreation);
+            await context.AddAsync(genre);
+            await context.SaveChangesAsync();
+
+            GenreDTO genreDTO = mapper.Map<GenreDTO>(genre);
 
             return new CreatedAtRouteResult(routeName: "getGenre",
-                                            routeValues: new { Id = genre.Id },
-                                            value: genre);            
+                                            routeValues: new { genreDTO.Id },
+                                            value: genreDTO);            
         }
 
-        [HttpPut]
-        public ActionResult Put([FromBody] Genre genre)
+        [HttpPut("{id:int}")]
+        public async Task<ActionResult> Put(int id, [FromBody] GenreUpdateDTO genreUpdate)
         {
+            Genre genre = mapper.Map<Genre>(genreUpdate);
+            genre.Id = id;
+            context.Entry(genre).State = EntityState.Modified;
+
+            await context.SaveChangesAsync();
             return NoContent();
         }
 
-        [HttpDelete]
-        public ActionResult Delete()
+        [HttpDelete("{id:int}")]
+        public async Task<ActionResult> Delete(int id)
         {
+            bool exists = await context.Genres.AnyAsync(x => x.Id == id);
+            if (!exists)
+            {
+                return NotFound();
+            }
+            
+            context.Remove(new Genre() { Id = id });
+            await context.SaveChangesAsync();
             return NoContent();
         }
 

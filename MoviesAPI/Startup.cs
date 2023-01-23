@@ -1,18 +1,11 @@
-using System.IO;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc.ActionConstraints;
-using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using MoviesAPI.Data;
 using MoviesAPI.Filters;
-using MoviesAPI.Services;
 
 namespace MoviesAPI
 {
@@ -35,7 +28,7 @@ namespace MoviesAPI
                 options.Filters.Add(typeof(MyExceptionFilter));
             }).AddXmlDataContractSerializerFormatters();
 
-            services.AddSingleton<IRepository, InMemoryRepository>();
+            services.AddAutoMapper(profileAssemblyMarkerTypes: typeof(Startup));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
