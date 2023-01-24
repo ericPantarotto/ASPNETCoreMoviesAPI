@@ -6,6 +6,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using MoviesAPI.Data;
 using MoviesAPI.Filters;
+using MoviesAPI.Services;
 
 namespace MoviesAPI
 {
@@ -23,12 +24,19 @@ namespace MoviesAPI
         {
             services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
+
+            services.AddAutoMapper(profileAssemblyMarkerTypes: typeof(Startup));
+
+            //services.AddTransient<IFileStorageService, InAppStorageService>();
+            services.AddTransient<IFileStorageService, AzureStorageService>();
+
+            services.AddHttpContextAccessor();
+
             services.AddControllers(options =>
             {
                 options.Filters.Add(typeof(MyExceptionFilter));
             }).AddXmlDataContractSerializerFormatters();
 
-            services.AddAutoMapper(profileAssemblyMarkerTypes: typeof(Startup));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -40,6 +48,8 @@ namespace MoviesAPI
             }
 
             app.UseHttpsRedirection();
+
+            app.UseStaticFiles();
 
             app.UseRouting();
 

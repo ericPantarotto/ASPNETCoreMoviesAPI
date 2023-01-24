@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
@@ -9,6 +10,7 @@ using Microsoft.EntityFrameworkCore;
 using MoviesAPI.Data;
 using MoviesAPI.DTOs;
 using MoviesAPI.Entities;
+using MoviesAPI.Services;
 
 namespace MoviesAPI.Controllers
 {
@@ -18,12 +20,16 @@ namespace MoviesAPI.Controllers
     {
         private readonly ApplicationDbContext context;
         private readonly IMapper mapper;
+        private readonly IFileStorageService fileStorageService;
+        private const string container = "people";
 
         public PeopleController(ApplicationDbContext context,
-                                IMapper mapper)
+                                IMapper mapper,
+                                IFileStorageService fileStorageService)
         {
             this.context = context;
             this.mapper = mapper;
+            this.fileStorageService = fileStorageService;
         }
 
         [HttpGet]
@@ -52,8 +58,24 @@ namespace MoviesAPI.Controllers
         public async Task<ActionResult<PersonDTO>> PostPerson([FromForm] PersonCreationDTO personCreationDTO)
         {
             Person person = mapper.Map<Person>(personCreationDTO);
+
+            if (personCreationDTO.Picture != null)
+            {
+                using (var memoryStream = new MemoryStream())
+                {
+                    personCreationDTO.Picture.CopyTo(memoryStream);
+                    byte[] content = memoryStream.ToArray();
+                    string extension = Path.GetExtension(path: personCreationDTO.Picture.FileName);
+                    person.Picture = await fileStorageService.SaveFile(content: content,
+                                                                       extension: extension,
+                                                                       containerName: container,
+                                                                       contentType: personCreationDTO.Picture.ContentType);
+                }
+                
+            }
+
             context.People.Add(person);
-            //await context.SaveChangesAsync();
+            await context.SaveChangesAsync();
 
             PersonDTO personDTO = mapper.Map<PersonDTO>(person);
             return CreatedAtAction("getPerson", new { id = person.Id }, personDTO);
