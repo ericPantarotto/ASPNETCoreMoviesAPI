@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MoviesAPI.Data;
@@ -76,6 +77,23 @@ namespace MoviesAPI.Controllers
             return NoContent();
         }
 
+        [HttpPatch("{id:int}")]
+        public async Task<ActionResult> PatchPerson(int id, [FromBody] JsonPatchDocument<PersonPatchDTO> patchDocument)
+        {
+            if (patchDocument is null) { return BadRequest(); }
+
+            Person personDb = await context.People.FirstOrDefaultAsync(x => x.Id == id);
+            if (personDb == null) { return NotFound(); }
+
+            var entityDto = mapper.Map<PersonPatchDTO>(personDb);
+            patchDocument.ApplyTo(entityDto, ModelState);
+            bool isValid = TryValidateModel(entityDto);
+            if (!isValid) { return BadRequest(ModelState); }
+
+            mapper.Map(entityDto, personDb);
+            await context.SaveChangesAsync();
+            return NoContent();
+        }
 
         // DELETE: api/People/5
         [HttpDelete("{id}")]
