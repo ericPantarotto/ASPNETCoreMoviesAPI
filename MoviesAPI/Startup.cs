@@ -7,6 +7,7 @@ using Microsoft.Extensions.Hosting;
 using MoviesAPI.Data;
 using MoviesAPI.Filters;
 using MoviesAPI.Services;
+using System;
 
 namespace MoviesAPI
 {

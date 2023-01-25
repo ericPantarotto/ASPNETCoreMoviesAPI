@@ -45,10 +45,7 @@ namespace MoviesAPI.Controllers
         {
             var person = await context.People.FindAsync(id);
 
-            if (person == null)
-            {
-                return NotFound();
-            }
+            if (person is null) { return NotFound(); }
 
             return mapper.Map<PersonDTO>(person);
         }
@@ -58,21 +55,7 @@ namespace MoviesAPI.Controllers
         public async Task<ActionResult<PersonDTO>> PostPerson([FromForm] PersonCreationDTO personCreationDTO)
         {
             Person person = mapper.Map<Person>(personCreationDTO);
-
-            if (personCreationDTO.Picture != null)
-            {
-                using (var memoryStream = new MemoryStream())
-                {
-                    personCreationDTO.Picture.CopyTo(memoryStream);
-                    byte[] content = memoryStream.ToArray();
-                    string extension = Path.GetExtension(path: personCreationDTO.Picture.FileName);
-                    person.Picture = await fileStorageService.SaveFile(content: content,
-                                                                       extension: extension,
-                                                                       containerName: container,
-                                                                       contentType: personCreationDTO.Picture.ContentType);
-                }
-                
-            }
+            await SetPicture(personCreationDTO, person);
 
             context.People.Add(person);
             await context.SaveChangesAsync();
@@ -81,58 +64,57 @@ namespace MoviesAPI.Controllers
             return CreatedAtAction("getPerson", new { id = person.Id }, personDTO);
         }
 
-        // PUT: api/People/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to, for
-        // more details, see https://go.microsoft.com/fwlink/?linkid=2123754.
-        //[HttpPut("{id}")]
-        //public async Task<IActionResult> PutPerson(int id, Person person)
-        //{
-        //    if (id != person.Id)
-        //    {
-        //        return BadRequest();
-        //    }
+        [HttpPut("{id:int}")]
+        public async Task<IActionResult> PutPerson(int id, [FromForm] PersonUpdateDTO personUpdateDTO)
+        {
+            Person personDb = await context.People.FirstOrDefaultAsync(x => x.Id == id);
+            if (personDb is null) { return NotFound(); }
 
-        //    context.Entry(person).State = EntityState.Modified;
-
-        //    try
-        //    {
-        //        await context.SaveChangesAsync();
-        //    }
-        //    catch (DbUpdateConcurrencyException)
-        //    {
-        //        if (!PersonExists(id))
-        //        {
-        //            return NotFound();
-        //        }
-        //        else
-        //        {
-        //            throw;
-        //        }
-        //    }
-
-        //    return NoContent();
-        //}
+            mapper.Map(personUpdateDTO, personDb);
+            await SetPicture(personUpdateDTO, personDb);
+            await context.SaveChangesAsync();
+            return NoContent();
+        }
 
 
         // DELETE: api/People/5
         [HttpDelete("{id}")]
-        //public async Task<ActionResult<Person>> DeletePerson(int id)
-        //{
-        //    var person = await context.People.FindAsync(id);
-        //    if (person == null)
-        //    {
-        //        return NotFound();
-        //    }
-
-        //    context.People.Remove(person);
-        //    await context.SaveChangesAsync();
-
-        //    return person;
-        //}
-
-        private bool PersonExists(int id)
+        public async Task<ActionResult> DeletePerson(int id)
         {
-            return context.People.Any(e => e.Id == id);
+            Person person = await context.People.FindAsync(id);
+            if (person == null) { return NotFound(); }
+
+            await fileStorageService.DeleteFile(fileRoute: person.Picture, containerName: container);
+            context.People.Remove(person);
+            await context.SaveChangesAsync();
+
+            return NoContent();
+        }
+
+        private async Task SetPicture(PersonDTOBase personSource, Person personToUpdate)
+        {
+            if (personSource.Picture != null)
+            {
+                using var memoryStream = new MemoryStream();
+                personSource.Picture.CopyTo(memoryStream);
+                byte[] content = memoryStream.ToArray();
+                string extension = Path.GetExtension(path: personSource.Picture.FileName);
+                if (personSource is PersonCreationDTO)
+                {
+                    personToUpdate.Picture = await fileStorageService.SaveFile(content: content,
+                                                                       extension: extension,
+                                                                       containerName: container,
+                                                                       contentType: personSource.Picture.ContentType);
+                }
+                else
+                {
+                    personToUpdate.Picture = await fileStorageService.EditFile(content: content,
+                                                                      extension: extension,
+                                                                      containerName: container,
+                                                                      fileRoute: personToUpdate.Picture,
+                                                                      contentType: personSource.Picture.ContentType);
+                }
+            }
         }
     }
 }

@@ -38,10 +38,8 @@ namespace MoviesAPI.Controllers
         public async Task<ActionResult<GenreDTO>> Get([FromRoute] int Id)
         {
             var genre = await context.Genres.FirstOrDefaultAsync(x => x.Id == Id);
-            if (genre is null)
-            {
-                return NotFound();
-            }
+            if (genre is null) { return NotFound(); }
+            
             return mapper.Map<GenreDTO>(genre);
         }
 
@@ -74,10 +72,7 @@ namespace MoviesAPI.Controllers
         public async Task<ActionResult> Delete(int id)
         {
             bool exists = await context.Genres.AnyAsync(x => x.Id == id);
-            if (!exists)
-            {
-                return NotFound();
-            }
+            if (!exists) { return NotFound(); }
             
             context.Remove(new Genre() { Id = id });
             await context.SaveChangesAsync();
