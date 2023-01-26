@@ -2,6 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
+    <UserSecretsId>8a9a814f-6273-4a5a-bf81-daa2e1673175</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>
@@ -26,6 +27,5 @@
   <ItemGroup>
     <Folder Include="wwwroot\" />
   </ItemGroup>
-
 
 </Project>

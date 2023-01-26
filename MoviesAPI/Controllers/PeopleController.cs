@@ -35,7 +35,7 @@ namespace MoviesAPI.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<PersonDTO>>> Get([FromQuery] PaginationDTO pagination)
+        public async Task<ActionResult<IEnumerable<PersonDTO>>> GetPerson([FromQuery] PaginationDTO pagination)
         {
             var queryable = context.People.AsQueryable();
             await HttpContext.InsertPaginationParametersInResponse(queryable, pagination.RecordsPerPage);
@@ -46,7 +46,7 @@ namespace MoviesAPI.Controllers
 
         // GET: api/People/5
         [HttpGet("{id:int}", Name = "getPerson")]
-        public async Task<ActionResult<PersonDTO>> Get(int id)
+        public async Task<ActionResult<PersonDTO>> GetPerson(int id)
         {
             var person = await context.People.FindAsync(id);
 
