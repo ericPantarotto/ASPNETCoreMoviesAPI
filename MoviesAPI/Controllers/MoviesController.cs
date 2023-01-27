@@ -11,7 +11,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-// using System.Linq.Dynamic.Core;
+using System.Linq.Dynamic.Core;
 using Microsoft.Extensions.Logging;
 using MoviesAPI.Data;
 
@@ -89,19 +89,19 @@ namespace MoviesAPI.Controllers
                     .Contains(filterMoviesDTO.GenreId));
             }
 
-            // if (!string.IsNullOrWhiteSpace(filterMoviesDTO.OrderingField))
-            // {
-            //     try
-            //     {
-            //         moviesQueryable = moviesQueryable
-            //             .OrderBy($"{filterMoviesDTO.OrderingField} {(filterMoviesDTO.AscendingOrder ? "ascending" : "descending")}");
-            //     }
-            //     catch
-            //     {
-            //         // log this
-            //         logger.LogWarning("Could not order by field: " + filterMoviesDTO.OrderingField);
-            //     }
-            // }
+            if (!string.IsNullOrWhiteSpace(filterMoviesDTO.OrderingField))
+            {
+                try
+                {
+                    moviesQueryable = moviesQueryable
+                        .OrderBy($"{filterMoviesDTO.OrderingField} {(filterMoviesDTO.AscendingOrder ? "ascending" : "descending")}");
+                }
+                catch
+                {
+                    // log this
+                    logger.LogWarning("Could not order by field: " + filterMoviesDTO.OrderingField);
+                }
+            }
 
             await HttpContext.InsertPaginationParametersInResponse(moviesQueryable,
                 filterMoviesDTO.RecordsPerPage);
