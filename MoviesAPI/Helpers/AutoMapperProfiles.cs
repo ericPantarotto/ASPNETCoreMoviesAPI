@@ -27,9 +27,9 @@ namespace MoviesAPI.Helpers
 
             CreateMap<Movie, MoviePatchDTO>().ReverseMap();
 
-            // CreateMap<Movie, MovieDetailsDTO>()
-            //    .ForMember(x => x.Genres, options => options.MapFrom(MapMoviesGenres))
-            //    .ForMember(x => x.Actors, options => options.MapFrom(MapMoviesActors));
+            CreateMap<Movie, MovieDetailsDTO>()
+               .ForMember(x => x.Genres, options => options.MapFrom(MapMoviesGenres))
+               .ForMember(x => x.Actors, options => options.MapFrom(MapMoviesActors));
         }
 
         private List<MoviesGenres> MapMoviesGenres(MovieCreationDTO movieCreationDTO, Movie movie)
@@ -52,24 +52,24 @@ namespace MoviesAPI.Helpers
             return result;
         }
 
-        // private List<GenreDTO> MapMoviesGenres(Movie movie, MovieDetailsDTO movieDetailsDTO)
-        // {
-        //     var result = new List<GenreDTO>();
-        //     foreach (var movieGenre in movie.MoviesGenres)
-        //     {
-        //         result.Add(new GenreDTO() { Id = movieGenre.GenreId, Name = movieGenre.Genre.Name });
-        //     }
-        //     return result;
-        // }
+        private List<GenreDTO> MapMoviesGenres(Movie movie, MovieDetailsDTO movieDetailsDTO)
+        {
+            var result = new List<GenreDTO>();
+            foreach (var movieGenre in movie.MoviesGenres)
+            {
+                result.Add(new GenreDTO() { Id = movieGenre.GenreId, Name = movieGenre.Genre.Name });
+            }
+            return result;
+        }
 
-        // private List<ActorDTO> MapMoviesActors(Movie movie, MovieDetailsDTO movieDetailsDTO)
-        // {
-        //     var result = new List<ActorDTO>();
-        //     foreach (var actor in movie.MoviesActors)
-        //     {
-        //         result.Add(new ActorDTO() { PersonId = actor.PersonId, Character = actor.Character, PersonName = actor.Person.Name });
-        //     }
-        //     return result;
-        // }
+        private List<ActorDTO> MapMoviesActors(Movie movie, MovieDetailsDTO movieDetailsDTO)
+        {
+            var result = new List<ActorDTO>();
+            foreach (var actor in movie.MoviesActors)
+            {
+                result.Add(new ActorDTO() { PersonId = actor.PersonId, Character = actor.Character, PersonName = actor.Person.Name });
+            }
+            return result;
+        }
     }
 }
