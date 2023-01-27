@@ -41,15 +41,15 @@ namespace MoviesAPI.Controllers
         // [HttpGet]
         // public async Task<ActionResult<IndexMoviePageDTO>> Get()
         // {
-        //     var top = 6;
-        //     var today = DateTime.Today;
-        //     var upcomingReleases = await context.Movies
+        //     int top = 6;
+        //     DateTime today = DateTime.Today;
+        //     List<Movie> upcomingReleases = await context.Movies
         //         .Where(x => x.ReleaseDate > today)
         //         .OrderBy(x => x.ReleaseDate)
         //         .Take(top)
         //         .ToListAsync();
 
-        //     var inTheaters = await context.Movies
+        //     List<Movie> inTheaters = await context.Movies
         //         .Where(x => x.InTheaters)
         //         .Take(top)
         //         .ToListAsync();
@@ -130,7 +130,7 @@ namespace MoviesAPI.Controllers
         [HttpPost]
         public async Task<ActionResult> Post([FromForm] MovieCreationDTO movieCreationDTO)
         {
-            var movie = mapper.Map<Movie>(movieCreationDTO);
+            Movie movie = mapper.Map<Movie>(movieCreationDTO);
 
             if (movieCreationDTO.Poster != null)
             {
