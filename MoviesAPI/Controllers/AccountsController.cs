@@ -5,6 +5,8 @@ using System.Linq;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
@@ -60,7 +62,15 @@ namespace MoviesAPI.Controllers
                 return BadRequest("Invalid login attempt");
             }
         }
-        
+
+        [HttpPost("RenewToken")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        public async Task<ActionResult<UserToken>> Renew()
+        {
+            var userInfo = new UserInfo { EmailAddress = HttpContext.User.Identity.Name };
+
+            return await BuildToken(userInfo);
+        }
         private async Task<UserToken> BuildToken(UserInfo userInfo)
         {
             var claims = new List<Claim>()
