@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using AutoMapper;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -14,6 +15,7 @@ namespace MoviesAPI.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    // [EnableCors(PolicyName = "AllowResttesttest")]
     public class GenresController: ControllerBase
     {
         private readonly ILogger<GenresController> logger;
@@ -31,6 +33,7 @@ namespace MoviesAPI.Controllers
 
         [HttpGet] // api/genres
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        // [EnableCors(PolicyName = "AllowResttesttest")]
         public async Task<List<GenreDTO>> Get()
         {
             List<Genre> genres = await context.Genres.AsNoTracking().ToListAsync();
@@ -38,6 +41,7 @@ namespace MoviesAPI.Controllers
         }
 
         [HttpGet("{Id:int}", Name = "getGenre")]
+        // [DisableCors]
         public async Task<ActionResult<GenreDTO>> Get([FromRoute] int Id)
         {
             var genre = await context.Genres.FirstOrDefaultAsync(x => x.Id == Id);

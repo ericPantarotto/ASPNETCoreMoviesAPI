@@ -27,6 +27,18 @@ namespace MoviesAPI
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddCors();
+            
+            //DEBUG: if we want to customize it at controller or endpoint level
+            // services.AddCors(options => 
+            // {
+            //     options.AddPolicy("AllowResttesttest",
+            //     builder => builder.WithOrigins("https://resttesttest.com")
+            //         .WithMethods("GET", "POST")
+            //         .AllowAnyHeader());
+            // });
+
+
             services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
 
@@ -79,6 +91,14 @@ namespace MoviesAPI
 
             app.UseAuthentication();
             app.UseAuthorization();
+
+            app.UseCors(builder => builder
+                .WithOrigins("https://resttesttest.com")
+                .WithMethods("GET", "POST")
+                .AllowAnyHeader());
+            
+            //DEBUG: if we want to customize it at controller or endpoint level
+            // app.UseCors();
 
             app.UseEndpoints(endpoints =>
             {
