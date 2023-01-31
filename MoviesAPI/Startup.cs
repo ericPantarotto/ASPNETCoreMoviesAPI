@@ -38,6 +38,7 @@ namespace MoviesAPI
             //         .AllowAnyHeader());
             // });
 
+            services.AddDataProtection();
 
             services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
@@ -63,6 +64,8 @@ namespace MoviesAPI
             services.AddTransient<IFileStorageService, AzureStorageService>();
 
             services.AddTransient<IHostedService, MovieInTheatersService>();
+
+            services.AddTransient<HashService>();
 
             services.AddHttpContextAccessor();
 
