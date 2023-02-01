@@ -41,6 +41,14 @@ namespace MoviesAPI.Controllers
             this.context = context;
             this.mapper = mapper;
         }
+
+        /// <summary>
+        /// Create new user in the database (Identity)
+        /// </summary>
+        /// <param name="model">UserInfo model</param>
+        /// <returns>User Token is returned if success</returns>
+        [ProducesResponseType(typeof(UserToken), 200)]
+        [ProducesResponseType(400)]
         [HttpPost("Create")]
         public async Task<ActionResult<UserToken>> CreateUser([FromBody] UserInfo model)
         {
@@ -57,6 +65,13 @@ namespace MoviesAPI.Controllers
             }
         }
         
+        /// <summary>
+        /// User Login Method 
+        /// </summary>
+        /// <param name="model">UserInfo as a parameter</param>
+        /// <returns>User Token is returned if success</returns>
+        [ProducesResponseType(typeof(UserToken), 200)]
+        [ProducesResponseType(400)]
         [HttpPost("Login")]
         public async Task<ActionResult<UserToken>> Login([FromBody] UserInfo model)
         {
@@ -73,6 +88,11 @@ namespace MoviesAPI.Controllers
             }
         }
 
+        /// <summary>
+        /// Renew Token , endpoints to be called by the Front-end UI
+        /// </summary>
+        /// <returns>User Token is returned if success</returns>
+        [ProducesResponseType(typeof(UserToken), 200)]
         [HttpPost("RenewToken")]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         public async Task<ActionResult<UserToken>> Renew()
@@ -83,6 +103,12 @@ namespace MoviesAPI.Controllers
             return await BuildToken(userInfo);
         }
 
+        /// <summary>
+        /// Get List of Users 
+        /// </summary>
+        /// <param name="paginationDTO"> paginate param (has default values if not provided)</param>
+        /// <returns>list of UsersDTO</returns>
+        [ProducesResponseType(typeof(List<UserDTO>), 200)]
         [HttpGet("Users")]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Admin")]
         public async Task<ActionResult<List<UserDTO>>> Get([FromQuery] PaginationDTO paginationDTO)
@@ -94,6 +120,11 @@ namespace MoviesAPI.Controllers
             return mapper.Map<List<UserDTO>>(users);
         }
 
+        /// <summary>
+        /// Get list of roles
+        /// </summary>
+        /// <returns>string representation of the roles</returns>
+        [ProducesResponseType(typeof(List<string>), 200)]
         [HttpGet("Roles")]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Admin")]
         public async Task<ActionResult<List<string>>> GetRoles()
@@ -101,6 +132,13 @@ namespace MoviesAPI.Controllers
             return await context.Roles.Select(x => x.Name).ToListAsync();
         }
 
+        /// <summary>
+        /// Assign a new role to a given user
+        /// </summary>
+        /// <param name="editRoleDTO">User Id (Guid) and role</param>
+        /// <returns>No Content</returns>
+        [ProducesResponseType(204)]
+        [ProducesResponseType(404)]
         [HttpPost("AssignRole")]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Admin")]
         public async Task<ActionResult> AssignRole(EditRoleDTO editRoleDTO)
@@ -115,6 +153,13 @@ namespace MoviesAPI.Controllers
             return NoContent();
         }
 
+        /// <summary>
+        /// Remove role to an existing user
+        /// </summary>
+        /// <param name="editRoleDTO">User Id (Guid) and role</param>
+        /// <returns>No Content if success</returns>
+        [ProducesResponseType(204)]
+        [ProducesResponseType(400)]
         [HttpPost("RemoveRole")]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Admin")]
         public async Task<ActionResult> RemoveRole(EditRoleDTO editRoleDTO)

@@ -40,6 +40,12 @@ namespace MoviesAPI.Controllers
             this.logger = logger;
         }
 
+        
+        /// <summary>
+        /// Get the top 6 upcoming movies and top 6 movies currently in theatre
+        /// </summary>
+        /// <returns>list of upcoming and currently in theatre movies</returns>
+        [ProducesResponseType(typeof(IndexMoviePageDTO),200)]
         [HttpGet]
         public async Task<ActionResult<IndexMoviePageDTO>> Get()
         {
@@ -63,6 +69,12 @@ namespace MoviesAPI.Controllers
             return result;
         }
 
+        /// <summary>
+        /// Filtering movies list
+        /// </summary>
+        /// <param name="filterMoviesDTO">Model allowing to filter on key attributes of a movie</param>
+        /// <returns>filtered list of movies</returns>
+        [ProducesResponseType(typeof(List<FilterMoviesDTO>), 200)]
         [HttpGet("filter")]
         public async Task<ActionResult<List<MovieDTO>>> Filter([FromQuery] FilterMoviesDTO filterMoviesDTO)
         {
@@ -113,6 +125,12 @@ namespace MoviesAPI.Controllers
             return mapper.Map<List<MovieDTO>>(movies);
         }
 
+        /// <summary>
+        /// get a single movie based on the id provided
+        /// </summary>
+        /// <param name="id">id of the mvoie to return</param>
+        /// <returns>a single movie</returns>
+        [ProducesResponseType(typeof(MovieDetailsDTO), 200)]
         [HttpGet("{id}", Name = "getMovie")]
         public async Task<ActionResult<MovieDetailsDTO>> Get(int id)
         {
@@ -126,6 +144,12 @@ namespace MoviesAPI.Controllers
             return mapper.Map<MovieDetailsDTO>(movie);
         }
 
+        /// <summary>
+        /// Creating a new movie
+        /// </summary>
+        /// <param name="movieCreationDTO">movie characteristics including list of genres and actors</param>
+        /// <returns>created movie</returns>
+        [ProducesResponseType(201)]
         [HttpPost]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Admin")]
         public async Task<ActionResult> Post([FromForm] MovieCreationDTO movieCreationDTO)
@@ -164,6 +188,14 @@ namespace MoviesAPI.Controllers
             }
         }
 
+        /// <summary>
+        /// update the selected movie
+        /// </summary>
+        /// <param name="id">id of the movie to update</param>
+        /// <param name="movieCreationDTO">movie characteristics including list of genres and actors</param>
+        /// <returns>No content if successful</returns>
+        [ProducesResponseType(204)]
+        [ProducesResponseType(404)]
         [HttpPut("{id}")]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Admin")]
         public async Task<ActionResult> Put(int id, [FromForm] MovieCreationDTO movieCreationDTO)
@@ -199,6 +231,15 @@ namespace MoviesAPI.Controllers
             return NoContent();
         }
 
+        /// <summary>
+        /// Patching a single movie
+        /// </summary>
+        /// <param name="id">id of the movie to patch</param>
+        /// <param name="patchDocument">json formatted document for updating a movie</param>
+        /// <returns>no content if successful</returns>
+        [ProducesResponseType(204)]
+        [ProducesResponseType(404)]
+        [ProducesResponseType(400)]
         [HttpPatch("{id}")]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Admin")]
         public async Task<ActionResult> Patch(int id, [FromBody] JsonPatchDocument<MoviePatchDTO> patchDocument)
@@ -233,7 +274,13 @@ namespace MoviesAPI.Controllers
             return NoContent();
         }
 
-
+        /// <summary>
+        /// deleting the selected movie 
+        /// </summary>
+        /// <param name="id">id of the movie to delete</param>
+        /// <returns>no content if successfull</returns>
+        [ProducesResponseType(204)]
+        [ProducesResponseType(404)]
         [HttpDelete("{id}")]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Admin")]
         public async Task<ActionResult> Delete(int id)

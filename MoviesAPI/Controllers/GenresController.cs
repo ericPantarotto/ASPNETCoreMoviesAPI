@@ -31,6 +31,12 @@ namespace MoviesAPI.Controllers
             this.mapper = mapper;
         }
 
+        /// <summary>
+        /// Get entire list of movies genres
+        /// </summary>
+        /// <returns>list of genres</returns>
+        [ProducesResponseType(typeof(List<GenreDTO>), 200)]
+        [ProducesResponseType(401)]
         [HttpGet] // api/genres
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         // [EnableCors(PolicyName = "AllowResttesttest")]
@@ -40,6 +46,13 @@ namespace MoviesAPI.Controllers
             return mapper.Map<List<GenreDTO>>(genres);
         }
 
+        /// <summary>
+        /// Get a single movie genre
+        /// </summary>
+        /// <param name="Id">passing the id of the genre</param>
+        /// <returns>returns a single genre if success</returns>
+        [ProducesResponseType(typeof(GenreDTO), 200)]
+        [ProducesResponseType(404)]
         [HttpGet("{Id:int}", Name = "getGenre")]
         // [DisableCors]
         public async Task<ActionResult<GenreDTO>> Get([FromRoute] int Id)
@@ -50,6 +63,12 @@ namespace MoviesAPI.Controllers
             return mapper.Map<GenreDTO>(genre);
         }
 
+        /// <summary>
+        /// Create a new genre in the dB
+        /// </summary>
+        /// <param name="genreCreation">Genre name first letter upper case</param>
+        /// <returns>redirect to the created movie genre</returns>
+        [ProducesResponseType(201)]
         [HttpPost]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Admin")]
         public async Task<ActionResult> Post([FromBody] GenreCreationDTO genreCreation)
@@ -65,6 +84,13 @@ namespace MoviesAPI.Controllers
                                             value: genreDTO);            
         }
 
+        /// <summary>
+        /// Update the attributes of movie genre
+        /// </summary>
+        /// <param name="id">id of the genre for update</param>
+        /// <param name="genreUpdate">new name for the genre to update</param>
+        /// <returns>no content if success</returns>
+        [ProducesResponseType(204)]
         [HttpPut("{id:int}")]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Admin")]
         public async Task<ActionResult> Put(int id, [FromBody] GenreUpdateDTO genreUpdate)
@@ -76,7 +102,14 @@ namespace MoviesAPI.Controllers
             await context.SaveChangesAsync();
             return NoContent();
         }
-
+        
+        /// <summary>
+        /// Delete a genre in the database
+        /// </summary>
+        /// <param name="id">Id of the genre to delete</param>
+        /// <returns>no content if deletion is successful</returns>
+        [ProducesResponseType(204)]
+        [ProducesResponseType(404)]
         [HttpDelete("{id:int}")]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Admin")]
         public async Task<ActionResult> Delete(int id)

@@ -5,6 +5,11 @@
     <UserSecretsId>8a9a814f-6273-4a5a-bf81-daa2e1673175</UserSecretsId>
   </PropertyGroup>
 
+  <PropertyGroup>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <NoWarn>$(NoWarn);1591</NoWarn>
+  </PropertyGroup>
+
   <ItemGroup>
     <PackageReference Include="automapper.extensions.microsoft.dependencyinjection" Version="12.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="3.1.32" />
@@ -17,6 +22,7 @@
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="3.1.5" />
+    <PackageReference Include="swashbuckle.aspnetcore" Version="6.5.0" />
     <PackageReference Include="system.linq.dynamic.core" Version="1.2.24" />
   </ItemGroup>
 

@@ -35,7 +35,12 @@ namespace MoviesAPI.Controllers
             this.mapper = mapper;
             this.fileStorageService = fileStorageService;
         }
-
+        /// <summary>
+        /// Get People list 
+        /// </summary>
+        /// <param name="pagination"></param>
+        /// <returns></returns>
+        [ProducesResponseType(typeof(IEnumerable<PersonDTO>), 200)]
         [HttpGet]
         public async Task<ActionResult<IEnumerable<PersonDTO>>> GetPerson([FromQuery] PaginationDTO pagination)
         {
@@ -45,7 +50,14 @@ namespace MoviesAPI.Controllers
             List<Person> people  = await queryable.Paginate(pagination).ToListAsync();
             return mapper.Map<List<PersonDTO>>(people);
         }
-
+        
+        /// <summary>
+        /// get single person based on the id provided
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        [ProducesResponseType(typeof(PersonDTO), 200)]
+        [ProducesResponseType(404)]
         // GET: api/People/5
         [HttpGet("{id:int}", Name = "getPerson")]
         public async Task<ActionResult<PersonDTO>> GetPerson(int id)
@@ -57,6 +69,12 @@ namespace MoviesAPI.Controllers
             return mapper.Map<PersonDTO>(person);
         }
 
+        /// <summary>
+        /// Create a new person in the dB
+        /// </summary>
+        /// <param name="personCreationDTO"></param>
+        /// <returns></returns>
+        [ProducesResponseType(typeof(PersonDTO), 200)]
         // POST: api/People
         [HttpPost]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Admin")]
@@ -72,6 +90,14 @@ namespace MoviesAPI.Controllers
             return CreatedAtAction("getPerson", new { id = person.Id }, personDTO);
         }
 
+        /// <summary>
+        /// Update an existing person
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="personUpdateDTO"></param>
+        /// <returns></returns>
+        [ProducesResponseType(204)]
+        [ProducesResponseType(404)]
         [HttpPut("{id:int}")]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Admin")]
         public async Task<IActionResult> PutPerson(int id, [FromForm] PersonUpdateDTO personUpdateDTO)
@@ -85,6 +111,15 @@ namespace MoviesAPI.Controllers
             return NoContent();
         }
 
+        /// <summary>
+        /// Patch an existing person based on JsonPatchDocument
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="patchDocument"></param>
+        /// <returns></returns>
+        [ProducesResponseType(204)]
+        [ProducesResponseType(404)]
+        [ProducesResponseType(400)]
         [HttpPatch("{id:int}")]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Admin")]
         public async Task<ActionResult> PatchPerson(int id, [FromBody] JsonPatchDocument<PersonPatchDTO> patchDocument)
@@ -104,6 +139,13 @@ namespace MoviesAPI.Controllers
             return NoContent();
         }
 
+        /// <summary>
+        /// delete an existing person in the dB
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        [ProducesResponseType(204)]
+        [ProducesResponseType(404)]
         // DELETE: api/People/5
         [HttpDelete("{id}")]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Admin")]
