@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -10,6 +11,7 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using MoviesAPI.Data;
 using MoviesAPI.Filters;
+using MoviesAPI.Helpers;
 using MoviesAPI.Services;
 using System;
 using System.IO;
@@ -51,7 +53,12 @@ namespace MoviesAPI
             services.AddIdentity<IdentityUser, IdentityRole>()
                 .AddEntityFrameworkStores<ApplicationDbContext>()
                 .AddDefaultTokenProviders();
-            
+
+            services.AddSingleton<IActionContextAccessor, ActionContextAccessor>();
+            services.AddTransient<GenreHATEOASAttribute>();
+            services.AddTransient<PersonHATEOASAttribute>();
+            services.AddTransient<LinksGenerator>();
+
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 .AddJwtBearer(options => options.TokenValidationParameters = new TokenValidationParameters
                 {

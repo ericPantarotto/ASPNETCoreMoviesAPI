@@ -10,6 +10,7 @@ using Microsoft.Extensions.Logging;
 using MoviesAPI.Data;
 using MoviesAPI.DTOs;
 using MoviesAPI.Entities;
+using MoviesAPI.Helpers;
 
 namespace MoviesAPI.Controllers
 {
@@ -39,53 +40,81 @@ namespace MoviesAPI.Controllers
         [ProducesResponseType(401)]
         [HttpGet(Name = "getGenres")] // api/genres
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        [ServiceFilter(typeof(GenreHATEOASAttribute))]
         // [EnableCors(PolicyName = "AllowResttesttest")]
         // public async Task<List<GenreDTO>> Get()
-        public async Task<IActionResult> Get([FromQuery] bool includeHATEOAS = true)
+        public async Task<IActionResult> Get()
         {
             List<Genre> genres = await context.Genres.AsNoTracking().ToListAsync();
             List<GenreDTO> genreDTOs = mapper.Map<List<GenreDTO>>(genres);
             
-            if (includeHATEOAS)
-            {
-                genreDTOs.ForEach(genre => GenerateLinks(genre));
-
-                var resourceCollection = new ResourceCollection<GenreDTO>(genreDTOs);
-                resourceCollection.Links.Add(new Link(href: Url.Link("getGenres", new{}), rel: "self", method: "GET"));
-                resourceCollection.Links.Add(new Link(href: Url.Link("createGenre", new{}), rel: "create-genre", method: "POST"));
-
-                return Ok(resourceCollection);    
-            }
-            
             return Ok(genreDTOs);
         }
 
-        private void GenerateLinks(GenreDTO genreDTO)
-        {
-            genreDTO.Links.Add(new Link(Url.Link("getGenre", new { Id = genreDTO.Id }), rel: "get-genre link", method: "GET"));
-            genreDTO.Links.Add(new Link(Url.Link("putGenre", new { Id = genreDTO.Id }), rel: "put-genre link", method: "PUT"));
-            genreDTO.Links.Add(new Link(Url.Link("deleteGenre", new { Id = genreDTO.Id }), rel: "delete-genre link", method: "DELETE"));
-        }
+        // [ProducesResponseType(typeof(List<GenreDTO>), 200)]
+        // [ProducesResponseType(401)]
+        // [HttpGet(Name = "getGenres")] // api/genres
+        // [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        // // [EnableCors(PolicyName = "AllowResttesttest")]
+        // // public async Task<List<GenreDTO>> Get()
+        // public async Task<IActionResult> Get([FromQuery] bool includeHATEOAS = true)
+        // {
+        //     List<Genre> genres = await context.Genres.AsNoTracking().ToListAsync();
+        //     List<GenreDTO> genreDTOs = mapper.Map<List<GenreDTO>>(genres);
+            
+        //     if (includeHATEOAS)
+        //     {
+        //         genreDTOs.ForEach(genre => GenerateLinks(genre));
+
+        //         var resourceCollection = new ResourceCollection<GenreDTO>(genreDTOs);
+        //         resourceCollection.Links.Add(new Link(href: Url.Link("getGenres", new{}), rel: "self", method: "GET"));
+        //         resourceCollection.Links.Add(new Link(href: Url.Link("createGenre", new{}), rel: "create-genre", method: "POST"));
+
+        //         return Ok(resourceCollection);    
+        //     }
+            
+        //     return Ok(genreDTOs);
+        // }
+
+        // private void GenerateLinks(GenreDTO genreDTO)
+        // {
+        //     genreDTO.Links.Add(new Link(Url.Link("getGenre", new { Id = genreDTO.Id }), rel: "get-genre link", method: "GET"));
+        //     genreDTO.Links.Add(new Link(Url.Link("putGenre", new { Id = genreDTO.Id }), rel: "put-genre link", method: "PUT"));
+        //     genreDTO.Links.Add(new Link(Url.Link("deleteGenre", new { Id = genreDTO.Id }), rel: "delete-genre link", method: "DELETE"));
+        // }
 
         /// <summary>
         /// Get a single movie genre 
         /// </summary>
         /// <param name="Id">passing the id of the genre</param>
-        /// <param name="includeHATEOAS">boolean for HATEOAS display</param>
         /// <returns></returns>
         [ProducesResponseType(typeof(GenreDTO), 200)]
         [ProducesResponseType(404)]
         [HttpGet("{Id:int}", Name = "getGenre")]
+        [ServiceFilter(typeof(GenreHATEOASAttribute))]
         // [DisableCors]
-        public async Task<ActionResult<GenreDTO>> Get([FromRoute] int Id, [FromQuery] bool includeHATEOAS = true)
+        public async Task<ActionResult<GenreDTO>> Get([FromRoute] int Id)
         {
             var genre = await context.Genres.FirstOrDefaultAsync(x => x.Id == Id);
             if (genre is null) { return NotFound(); }
 
             var genreDTO = mapper.Map<GenreDTO>(genre);
-            if (includeHATEOAS) { GenerateLinks(genreDTO); }
             return genreDTO;
         }
+
+        // [ProducesResponseType(typeof(GenreDTO), 200)]
+        // [ProducesResponseType(404)]
+        // [HttpGet("{Id:int}", Name = "getGenre")]
+        // // [DisableCors]
+        // public async Task<ActionResult<GenreDTO>> Get([FromRoute] int Id, [FromQuery] bool includeHATEOAS = true)
+        // {
+        //     var genre = await context.Genres.FirstOrDefaultAsync(x => x.Id == Id);
+        //     if (genre is null) { return NotFound(); }
+
+        //     var genreDTO = mapper.Map<GenreDTO>(genre);
+        //     if (includeHATEOAS) { GenerateLinks(genreDTO); }
+        //     return genreDTO;
+        // }
 
         /// <summary>
         /// Create a new genre in the dB

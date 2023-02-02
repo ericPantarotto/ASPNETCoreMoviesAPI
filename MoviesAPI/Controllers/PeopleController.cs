@@ -42,6 +42,7 @@ namespace MoviesAPI.Controllers
         /// <returns></returns>
         [ProducesResponseType(typeof(IEnumerable<PersonDTO>), 200)]
         [HttpGet(Name = "getPeople")]
+        [ServiceFilter(typeof(PersonHATEOASAttribute))]
         public async Task<ActionResult<IEnumerable<PersonDTO>>> GetPerson([FromQuery] PaginationDTO pagination)
         {
             var queryable = context.People.AsQueryable();
@@ -60,6 +61,7 @@ namespace MoviesAPI.Controllers
         [ProducesResponseType(404)]
         // GET: api/People/5
         [HttpGet("{id:int}", Name = "getPerson")]
+        [ServiceFilter(typeof(PersonHATEOASAttribute))]
         public async Task<ActionResult<PersonDTO>> GetPerson(int id)
         {
             var person = await context.People.FindAsync(id);
@@ -76,7 +78,7 @@ namespace MoviesAPI.Controllers
         /// <returns></returns>
         [ProducesResponseType(typeof(PersonDTO), 200)]
         // POST: api/People
-        [HttpPost]
+        [HttpPost(Name = "createPerson")]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Admin")]
         public async Task<ActionResult<PersonDTO>> PostPerson([FromForm] PersonCreationDTO personCreationDTO)
         {
@@ -98,7 +100,7 @@ namespace MoviesAPI.Controllers
         /// <returns></returns>
         [ProducesResponseType(204)]
         [ProducesResponseType(404)]
-        [HttpPut("{id:int}")]
+        [HttpPut("{id:int}", Name = "putPerson")]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Admin")]
         public async Task<IActionResult> PutPerson(int id, [FromForm] PersonUpdateDTO personUpdateDTO)
         {
@@ -120,7 +122,7 @@ namespace MoviesAPI.Controllers
         [ProducesResponseType(204)]
         [ProducesResponseType(404)]
         [ProducesResponseType(400)]
-        [HttpPatch("{id:int}")]
+        [HttpPatch("{id:int}", Name = "patchPerson")]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Admin")]
         public async Task<ActionResult> PatchPerson(int id, [FromBody] JsonPatchDocument<PersonPatchDTO> patchDocument)
         {
@@ -147,7 +149,7 @@ namespace MoviesAPI.Controllers
         [ProducesResponseType(204)]
         [ProducesResponseType(404)]
         // DELETE: api/People/5
-        [HttpDelete("{id}")]
+        [HttpDelete("{id}", Name = "deletePerson")]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Admin")]
         public async Task<ActionResult> DeletePerson(int id)
         {
