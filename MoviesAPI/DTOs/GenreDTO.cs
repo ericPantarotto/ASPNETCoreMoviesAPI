@@ -1,5 +1,4 @@
-﻿using MoviesAPI.Validations;
-using System.ComponentModel.DataAnnotations;
+﻿using System.Collections.Generic;
 
 namespace MoviesAPI.DTOs
 {
@@ -8,5 +7,7 @@ namespace MoviesAPI.DTOs
         public int Id { get; set; }
 
         public string Name { get; set; }
+
+        public List<Link> Links { get; set; } = new List<Link>();
     }
 }

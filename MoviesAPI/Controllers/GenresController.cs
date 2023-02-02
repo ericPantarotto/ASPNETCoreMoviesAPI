@@ -37,30 +37,54 @@ namespace MoviesAPI.Controllers
         /// <returns>list of genres</returns>
         [ProducesResponseType(typeof(List<GenreDTO>), 200)]
         [ProducesResponseType(401)]
-        [HttpGet] // api/genres
+        [HttpGet(Name = "getGenres")] // api/genres
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         // [EnableCors(PolicyName = "AllowResttesttest")]
-        public async Task<List<GenreDTO>> Get()
+        // public async Task<List<GenreDTO>> Get()
+        public async Task<IActionResult> Get([FromQuery] bool includeHATEOAS = true)
         {
             List<Genre> genres = await context.Genres.AsNoTracking().ToListAsync();
-            return mapper.Map<List<GenreDTO>>(genres);
+            List<GenreDTO> genreDTOs = mapper.Map<List<GenreDTO>>(genres);
+            
+            if (includeHATEOAS)
+            {
+                genreDTOs.ForEach(genre => GenerateLinks(genre));
+
+                var resourceCollection = new ResourceCollection<GenreDTO>(genreDTOs);
+                resourceCollection.Links.Add(new Link(href: Url.Link("getGenres", new{}), rel: "self", method: "GET"));
+                resourceCollection.Links.Add(new Link(href: Url.Link("createGenre", new{}), rel: "create-genre", method: "POST"));
+
+                return Ok(resourceCollection);    
+            }
+            
+            return Ok(genreDTOs);
+        }
+
+        private void GenerateLinks(GenreDTO genreDTO)
+        {
+            genreDTO.Links.Add(new Link(Url.Link("getGenre", new { Id = genreDTO.Id }), rel: "get-genre link", method: "GET"));
+            genreDTO.Links.Add(new Link(Url.Link("putGenre", new { Id = genreDTO.Id }), rel: "put-genre link", method: "PUT"));
+            genreDTO.Links.Add(new Link(Url.Link("deleteGenre", new { Id = genreDTO.Id }), rel: "delete-genre link", method: "DELETE"));
         }
 
         /// <summary>
-        /// Get a single movie genre
+        /// Get a single movie genre 
         /// </summary>
         /// <param name="Id">passing the id of the genre</param>
-        /// <returns>returns a single genre if success</returns>
+        /// <param name="includeHATEOAS">boolean for HATEOAS display</param>
+        /// <returns></returns>
         [ProducesResponseType(typeof(GenreDTO), 200)]
         [ProducesResponseType(404)]
         [HttpGet("{Id:int}", Name = "getGenre")]
         // [DisableCors]
-        public async Task<ActionResult<GenreDTO>> Get([FromRoute] int Id)
+        public async Task<ActionResult<GenreDTO>> Get([FromRoute] int Id, [FromQuery] bool includeHATEOAS = true)
         {
             var genre = await context.Genres.FirstOrDefaultAsync(x => x.Id == Id);
             if (genre is null) { return NotFound(); }
-            
-            return mapper.Map<GenreDTO>(genre);
+
+            var genreDTO = mapper.Map<GenreDTO>(genre);
+            if (includeHATEOAS) { GenerateLinks(genreDTO); }
+            return genreDTO;
         }
 
         /// <summary>
@@ -69,7 +93,7 @@ namespace MoviesAPI.Controllers
         /// <param name="genreCreation">Genre name first letter upper case</param>
         /// <returns>redirect to the created movie genre</returns>
         [ProducesResponseType(201)]
-        [HttpPost]
+        [HttpPost(Name ="createGenre")]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Admin")]
         public async Task<ActionResult> Post([FromBody] GenreCreationDTO genreCreation)
         {
@@ -91,7 +115,7 @@ namespace MoviesAPI.Controllers
         /// <param name="genreUpdate">new name for the genre to update</param>
         /// <returns>no content if success</returns>
         [ProducesResponseType(204)]
-        [HttpPut("{id:int}")]
+        [HttpPut("{id:int}", Name ="putGenre")]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Admin")]
         public async Task<ActionResult> Put(int id, [FromBody] GenreUpdateDTO genreUpdate)
         {
@@ -110,7 +134,7 @@ namespace MoviesAPI.Controllers
         /// <returns>no content if deletion is successful</returns>
         [ProducesResponseType(204)]
         [ProducesResponseType(404)]
-        [HttpDelete("{id:int}")]
+        [HttpDelete("{id:int}", Name ="deleteGenre")]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Admin")]
         public async Task<ActionResult> Delete(int id)
         {

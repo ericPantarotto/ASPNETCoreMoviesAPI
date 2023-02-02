@@ -41,7 +41,7 @@ namespace MoviesAPI.Controllers
         /// <param name="pagination"></param>
         /// <returns></returns>
         [ProducesResponseType(typeof(IEnumerable<PersonDTO>), 200)]
-        [HttpGet]
+        [HttpGet(Name = "getPeople")]
         public async Task<ActionResult<IEnumerable<PersonDTO>>> GetPerson([FromQuery] PaginationDTO pagination)
         {
             var queryable = context.People.AsQueryable();
