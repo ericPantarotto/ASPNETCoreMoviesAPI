@@ -46,7 +46,8 @@ namespace MoviesAPI
             services.AddDataProtection();
 
             services.AddDbContext<ApplicationDbContext>(options =>
-                options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
+                options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection"),
+                sqlserver => sqlserver.UseNetTopologySuite()));
 
             services.AddAutoMapper(profileAssemblyMarkerTypes: typeof(Startup));
 
