@@ -1,12 +1,13 @@
 using Microsoft.AspNetCore.Mvc;
 using MoviesAPI.DTOs;
+using MoviesAPI.Helpers;
 using System.Collections.Generic;
 
 namespace MoviesAPI.Controllers
 {
     [ApiController]
     [Route("api")]
-    //[HttpHeaderIsPresent("x-version", "1")]
+    [HttpHeaderIsPresent("x-version", "V1")]
     public class RootController: ControllerBase
     {
         [HttpGet(Name = "getRoot")]

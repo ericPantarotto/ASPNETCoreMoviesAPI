@@ -83,6 +83,7 @@ namespace MoviesAPI
             services.AddControllers(options =>
             {
                 options.Filters.Add(typeof(MyExceptionFilter));
+                options.Conventions.Add(new GroupingByNamespaceConvention());
             })
                 .AddNewtonsoftJson()
                 .AddXmlDataContractSerializerFormatters();
@@ -106,6 +107,8 @@ namespace MoviesAPI
                     }
                 });
 
+                config.SwaggerDoc("v2", new OpenApiInfo { Title = "MoviesAPI", Version = "v2" });
+                
                 config.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme()
                 {
                     Name = "Authorization",
@@ -145,6 +148,7 @@ namespace MoviesAPI
             app.UseSwaggerUI(config =>
             {
                 config.SwaggerEndpoint("/swagger/v1/swagger.json", "MoviesAPI");
+                config.SwaggerEndpoint("/swagger/v2/swagger.json", "MoviesAPI v2");
             });
 
             if (env.IsDevelopment())
