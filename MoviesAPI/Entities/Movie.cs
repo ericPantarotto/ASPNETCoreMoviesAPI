@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace MoviesAPI.Entities
 {
-    public class Movie
+    public class Movie: IId, IPicture
     {
         public int Id { get; set; }
         [Required]
@@ -14,7 +14,15 @@ namespace MoviesAPI.Entities
         public bool InTheaters { get; set; }
         public DateTime ReleaseDate { get; set; }
         public string Poster { get; set; }
+        
         public List<MoviesActors> MoviesActors { get; set; }
         public List<MoviesGenres> MoviesGenres { get; set; }
+        private string picture;
+        public string Picture
+        {
+            get { return Poster; }
+            set { picture = value; }
+        }
+        
     }
 }

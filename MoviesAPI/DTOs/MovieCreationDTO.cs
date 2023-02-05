@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using MoviesAPI.Entities;
 using MoviesAPI.Helpers;
 using MoviesAPI.Validations;
 using System.Collections.Generic;
@@ -7,7 +8,7 @@ using static MoviesAPI.Validations.ContentTypeValidator;
 
 namespace MoviesAPI.DTOs
 {
-    public class MovieCreationDTO: MoviePatchDTO
+    public class MovieCreationDTO: MoviePatchDTO, IPictureFormFile, IPictureCustom
     {
         [FileSizeValidator(maxFileSizeInMbs: 4)]
         [ContentTypeValidator(contentTypeGroup: ContentTypeGroup.Image)]
@@ -18,5 +19,14 @@ namespace MoviesAPI.DTOs
 
         [ModelBinder(BinderType = typeof(TypeBinder<List<ActorCreationDTO>>))]
         public List<ActorCreationDTO> Actors { get; set; }
+        public string PictureCustom { get; set; }
+        
+        private IFormFile picture;
+        public IFormFile Picture
+        {
+            get { return Poster; }
+            set { picture = value; }
+        }
+        
     }
 }
