@@ -5,7 +5,7 @@ using MoviesAPI.Validations;
 
 namespace MoviesAPI.Entities
 {
-    public class Person
+    public class Person: IId, IPicture
     {
         public int Id { get; set; }
         [Required]

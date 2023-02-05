@@ -21,7 +21,7 @@ namespace MoviesAPI.Controllers
 {
     [ApiController]
     [Route("api/movies")]
-    public class MoviesController : ControllerBase
+    public class MoviesController : CustomBaseController
     {
         private readonly ApplicationDbContext context;
         private readonly IMapper mapper;
@@ -33,6 +33,7 @@ namespace MoviesAPI.Controllers
             IMapper mapper,
             IFileStorageService fileStorageService,
             ILogger<MoviesController> logger)
+        : base(context, mapper)
         {
             this.context = context;
             this.mapper = mapper;
@@ -134,14 +135,12 @@ namespace MoviesAPI.Controllers
         [HttpGet("{id}", Name = "getMovie")]
         public async Task<ActionResult<MovieDetailsDTO>> Get(int id)
         {
-            var movie = await context.Movies
+            var queryable = context.Movies
                 .Include(x => x.MoviesActors).ThenInclude(x => x.Person)
                 .Include(x => x.MoviesGenres).ThenInclude(x => x.Genre)
-                .FirstOrDefaultAsync(x => x.Id == id);
+                .AsQueryable();
 
-            if (movie == null) { return NotFound(); }
-
-            return mapper.Map<MovieDetailsDTO>(movie);
+            return await Get<Movie, MovieDetailsDTO>(id, queryable);
         }
 
         /// <summary>
@@ -154,30 +153,10 @@ namespace MoviesAPI.Controllers
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Admin")]
         public async Task<ActionResult> Post([FromForm] MovieCreationDTO movieCreationDTO)
         {
-            Movie movie = mapper.Map<Movie>(movieCreationDTO);
-
-            if (movieCreationDTO.Poster != null)
-            {
-                using (var memoryStream = new MemoryStream())
-                {
-                    await movieCreationDTO.Poster.CopyToAsync(memoryStream);
-                    var content = memoryStream.ToArray();
-                    var extension = Path.GetExtension(movieCreationDTO.Poster.FileName);
-                    movie.Poster =
-                        await fileStorageService.SaveFile(content, extension, containerName,
-                                                            movieCreationDTO.Poster.ContentType);
-                }
-            }
-
-            AnnotateActorsOrder(movie);
-
-            context.Add(movie);
-            await context.SaveChangesAsync();
-            var movieDTO = mapper.Map<MovieDTO>(movie);
-            return new CreatedAtRouteResult("getMovie", new { id = movie.Id }, movieDTO);
+            return await Post<MovieCreationDTO, Movie, MovieDTO>(movieCreationDTO, "getMovie", fileStorageService, containerName);
         }
 
-        private static void AnnotateActorsOrder(Movie movie)
+        private void AnnotateOrder(Movie movie)
         {
             if (movie.MoviesActors != null)
             {
@@ -225,7 +204,7 @@ namespace MoviesAPI.Controllers
 
             await context.Database.ExecuteSqlInterpolatedAsync($"delete from MoviesActors where MovieId = {movieDB.Id}; delete from MoviesGenres where MovieId = {movieDB.Id}");
 
-            AnnotateActorsOrder(movieDB);
+            AnnotateOrder(movieDB);
 
             await context.SaveChangesAsync();
             return NoContent();
@@ -244,34 +223,7 @@ namespace MoviesAPI.Controllers
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Admin")]
         public async Task<ActionResult> Patch(int id, [FromBody] JsonPatchDocument<MoviePatchDTO> patchDocument)
         {
-            if (patchDocument == null)
-            {
-                return BadRequest();
-            }
-
-            var entityFromDB = await context.Movies.FirstOrDefaultAsync(x => x.Id == id);
-
-            if (entityFromDB == null)
-            {
-                return NotFound();
-            }
-
-            var entityDTO = mapper.Map<MoviePatchDTO>(entityFromDB);
-
-            patchDocument.ApplyTo(entityDTO, ModelState);
-
-            var isValid = TryValidateModel(entityDTO);
-
-            if (!isValid)
-            {
-                return BadRequest(ModelState);
-            }
-
-            mapper.Map(entityDTO, entityFromDB);
-
-            await context.SaveChangesAsync();
-
-            return NoContent();
+              return await Patch<Movie, MoviePatchDTO>(id, patchDocument);
         }
 
         /// <summary>
@@ -285,13 +237,7 @@ namespace MoviesAPI.Controllers
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Admin")]
         public async Task<ActionResult> Delete(int id)
         {
-            Movie movie = await context.Movies.FindAsync(id);
-            if (movie is null) { return NotFound(); }
-
-            await fileStorageService.DeleteFile(fileRoute: movie.Poster, containerName: containerName);
-            context.Remove(new Movie() { Id = id });
-            await context.SaveChangesAsync();
-            return NoContent();
+            return await Delete<Movie>(id, fileStorageService, containerName);
         }
     }
 }

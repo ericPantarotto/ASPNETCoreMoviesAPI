@@ -16,8 +16,8 @@ namespace MoviesAPI.Configuration
             services.AddTransient<PersonHATEOASAttribute>();
             services.AddTransient<LinksGenerator>();
 
-            //services.AddTransient<IFileStorageService, InAppStorageService>();
-            services.AddTransient<IFileStorageService, AzureStorageService>();
+            services.AddTransient<IFileStorageService, InAppStorageService>();
+            // services.AddTransient<IFileStorageService, AzureStorageService>();
 
             services.AddTransient<IHostedService, MovieInTheatersService>();
 

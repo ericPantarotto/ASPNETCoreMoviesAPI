@@ -17,6 +17,7 @@ namespace MoviesAPI.Data
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            modelBuilder.Entity<Movie>().Ignore(c => c.Picture);
             modelBuilder.Entity<MoviesGenres>().HasKey(x => new { x.GenreId, x.MovieId});
             modelBuilder.Entity<MoviesActors>().HasKey(x => new { x.PersonId, x.MovieId});
 

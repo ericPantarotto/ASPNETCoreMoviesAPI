@@ -20,7 +20,7 @@ namespace MoviesAPI.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class PeopleController : ControllerBase
+    public class PeopleController : CustomBaseController
     {
         private readonly ApplicationDbContext context;
         private readonly IMapper mapper;
@@ -30,6 +30,7 @@ namespace MoviesAPI.Controllers
         public PeopleController(ApplicationDbContext context,
                                 IMapper mapper,
                                 IFileStorageService fileStorageService)
+        : base(context, mapper)
         {
             this.context = context;
             this.mapper = mapper;
@@ -45,11 +46,7 @@ namespace MoviesAPI.Controllers
         [ServiceFilter(typeof(PersonHATEOASAttribute))]
         public async Task<ActionResult<IEnumerable<PersonDTO>>> GetPerson([FromQuery] PaginationDTO pagination)
         {
-            var queryable = context.People.AsQueryable();
-            await HttpContext.InsertPaginationParametersInResponse(queryable, pagination.RecordsPerPage);
-            //List<Person> people = await context.People.ToListAsync();
-            List<Person> people  = await queryable.Paginate(pagination).ToListAsync();
-            return mapper.Map<List<PersonDTO>>(people);
+            return await Get<Person, PersonDTO>();
         }
         
         /// <summary>
@@ -64,11 +61,7 @@ namespace MoviesAPI.Controllers
         [ServiceFilter(typeof(PersonHATEOASAttribute))]
         public async Task<ActionResult<PersonDTO>> GetPerson(int id)
         {
-            var person = await context.People.FindAsync(id);
-
-            if (person is null) { return NotFound(); }
-
-            return mapper.Map<PersonDTO>(person);
+            return await Get<Person, PersonDTO>(id);
         }
 
         /// <summary>
@@ -82,14 +75,7 @@ namespace MoviesAPI.Controllers
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Admin")]
         public async Task<ActionResult<PersonDTO>> PostPerson([FromForm] PersonCreationDTO personCreationDTO)
         {
-            Person person = mapper.Map<Person>(personCreationDTO);
-            await SetPicture(personCreationDTO, person);
-
-            context.People.Add(person);
-            await context.SaveChangesAsync();
-
-            PersonDTO personDTO = mapper.Map<PersonDTO>(person);
-            return CreatedAtAction("getPerson", new { id = person.Id }, personDTO);
+            return await Post<PersonCreationDTO, Person, PersonDTO>(personCreationDTO, "getPerson", fileStorageService, container);            
         }
 
         /// <summary>
@@ -126,19 +112,7 @@ namespace MoviesAPI.Controllers
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Admin")]
         public async Task<ActionResult> PatchPerson(int id, [FromBody] JsonPatchDocument<PersonPatchDTO> patchDocument)
         {
-            if (patchDocument is null) { return BadRequest(); }
-
-            Person personDb = await context.People.FirstOrDefaultAsync(x => x.Id == id);
-            if (personDb == null) { return NotFound(); }
-
-            var entityDto = mapper.Map<PersonPatchDTO>(personDb);
-            patchDocument.ApplyTo(entityDto, ModelState);
-            bool isValid = TryValidateModel(entityDto);
-            if (!isValid) { return BadRequest(ModelState); }
-
-            mapper.Map(entityDto, personDb);
-            await context.SaveChangesAsync();
-            return NoContent();
+            return await Patch<Person, PersonPatchDTO>(id, patchDocument);
         }
 
         /// <summary>
@@ -153,14 +127,15 @@ namespace MoviesAPI.Controllers
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Admin")]
         public async Task<ActionResult> DeletePerson(int id)
         {
-            Person person = await context.People.FindAsync(id);
-            if (person == null) { return NotFound(); }
+            // Person person = await context.People.FindAsync(id);
+            // if (person == null) { return NotFound(); }
 
-            await fileStorageService.DeleteFile(fileRoute: person.Picture, containerName: container);
-            context.People.Remove(person);
-            await context.SaveChangesAsync();
+            // await fileStorageService.DeleteFile(fileRoute: person.Picture, containerName: container);
+            // context.People.Remove(person);
+            // await context.SaveChangesAsync();
 
-            return NoContent();
+            // return NoContent();
+            return await Delete<Person>(id, fileStorageService, container);
         }
 
         private async Task SetPicture(PersonDTOBase personSource, Person personToUpdate)
