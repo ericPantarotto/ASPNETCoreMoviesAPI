@@ -1,11 +1,12 @@
 using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Moq;
 using MoviesAPI.Testing;
 
-namespace MoviesAPI.Tests
+namespace MoviesAPI.Tests.UnitTests
 {
     [TestClass]
-    public class TransferServiceValidationTests
+    public class TransferServiceMoqTests
     {
         [TestMethod]
         public void WireTransferWithInsufficientFundsThrowsAnError()
@@ -14,8 +15,14 @@ namespace MoviesAPI.Tests
             Account origin = new Account() { Funds = 0};
             Account destination = new Account() { Funds = 0};
             decimal amountToTranfer = 5m;
-            //NOTE: Adding an instance of our transfer validator solves our error, 
-            var service = new TransferServiceValidation(new WireTransferValidator());
+
+            //NOTE: Using a Moq
+            string customErrorMessage = "custom error message";
+            var mockValidateWireTransfer = new Mock<IValidateWireTransfer>();
+            mockValidateWireTransfer.Setup(x => x.Validate(origin, destination, amountToTranfer))
+                .Returns(new OperationResult(false, customErrorMessage));
+
+            var service = new TransferServiceValidation(mockValidateWireTransfer.Object);
             Exception expectedException = null;
 
             //Testing
@@ -32,7 +39,7 @@ namespace MoviesAPI.Tests
             if (expectedException is null) { Assert.Fail("An exception was expected"); }
 
             Assert.IsTrue(expectedException is ApplicationException);
-            Assert.AreEqual("The origin account doesn't have enough funds.", expectedException.Message);
+            Assert.AreEqual(customErrorMessage, expectedException.Message);
         }
 
         [TestMethod]
@@ -42,7 +49,12 @@ namespace MoviesAPI.Tests
             Account origin = new Account() { Funds = 10m};
             Account destination = new Account() { Funds = 5m};
             decimal amountToTranfer = 7m;
-            var service = new TransferService();
+
+            //NOTE: Using a Moq
+            var mockValidateWireTransfer = new Mock<IValidateWireTransfer>();
+            mockValidateWireTransfer.Setup(x => x.Validate(origin, destination, amountToTranfer))
+                .Returns(new OperationResult(true));
+            var service = new TransferServiceValidation(mockValidateWireTransfer.Object);
 
             //Testing
             service.WireTransfer(origin, destination, amountToTranfer);
@@ -51,5 +63,6 @@ namespace MoviesAPI.Tests
             Assert.AreEqual(3m, origin.Funds);
             Assert.AreEqual(12m, destination.Funds);
         }
+
     }
 }

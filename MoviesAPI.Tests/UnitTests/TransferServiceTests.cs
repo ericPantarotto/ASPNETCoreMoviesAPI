@@ -2,7 +2,7 @@ using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using MoviesAPI.Testing;
 
-namespace MoviesAPI.Tests
+namespace MoviesAPI.Tests.UnitTests
 {
     [TestClass]
     public class TransferServiceTests
