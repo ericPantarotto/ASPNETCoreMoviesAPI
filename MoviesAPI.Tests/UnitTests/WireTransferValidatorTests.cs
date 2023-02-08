@@ -18,7 +18,7 @@ namespace MoviesAPI.Tests.UnitTests
             var result = services.Validate(origin, destination, amountToTransfer);
 
             Assert.IsFalse(result.IsSuccessful);
-            Assert.AreEqual("The origin account does not have enough funds available", result.ErrorMessage);
+            Assert.AreEqual("The origin account doesn't have enough funds.", result.ErrorMessage);
         }
 
         [TestMethod]

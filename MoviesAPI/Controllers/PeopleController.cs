@@ -46,7 +46,7 @@ namespace MoviesAPI.Controllers
         [ServiceFilter(typeof(PersonHATEOASAttribute))]
         public async Task<ActionResult<IEnumerable<PersonDTO>>> GetPerson([FromQuery] PaginationDTO pagination)
         {
-            return await Get<Person, PersonDTO>();
+            return await Get<Person, PersonDTO>(pagination);
         }
         
         /// <summary>
@@ -73,7 +73,7 @@ namespace MoviesAPI.Controllers
         // POST: api/People
         [HttpPost(Name = "createPerson")]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Admin")]
-        public async Task<ActionResult<PersonDTO>> PostPerson([FromForm] PersonCreationDTO personCreationDTO)
+        public async Task<ActionResult> PostPerson([FromForm] PersonCreationDTO personCreationDTO)
         {
             return await Post<PersonCreationDTO, Person, PersonDTO>(personCreationDTO, "getPerson", fileStorageService, container);            
         }

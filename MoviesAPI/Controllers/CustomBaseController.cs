@@ -154,7 +154,7 @@ namespace MoviesAPI.Controllers
             where TDTO: class, IPictureFormFile, IPictureCustom
             where TEntity: class, IPicture
         {
-            if (dto.Picture != null)
+            if (dto.Picture != null && fileStorageService != null)
             {
                 using var memoryStream = new MemoryStream();
                 dto.Picture.CopyTo(memoryStream);

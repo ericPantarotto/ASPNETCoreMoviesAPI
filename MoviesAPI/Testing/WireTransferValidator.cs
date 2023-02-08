@@ -4,7 +4,7 @@ namespace MoviesAPI.Testing
     {
         public OperationResult Validate(Account origin, Account destination, decimal amount)
         {
-            if (amount > origin.Funds){ return new OperationResult(false, "The origin account does not have enough funds available"); }
+            if (amount > origin.Funds){ return new OperationResult(false, "The origin account doesn't have enough funds."); }
 
             // other validations
 
