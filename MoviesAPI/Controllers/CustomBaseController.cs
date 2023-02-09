@@ -167,14 +167,14 @@ namespace MoviesAPI.Controllers
                                                                        containerName: container,
                                                                        contentType: dto.Picture.ContentType);
                 }
-                else
-                {
-                    entity.Picture = await fileStorageService.EditFile(content: content,
-                                                                      extension: extension,
-                                                                      containerName: container,
-                                                                      fileRoute: entity.Picture,
-                                                                      contentType: dto.Picture.ContentType);
-                }
+                // else
+                // {
+                //     entity.Picture = await fileStorageService.EditFile(content: content,
+                //                                                       extension: extension,
+                //                                                       containerName: container,
+                //                                                       fileRoute: entity.Picture,
+                //                                                       contentType: dto.Picture.ContentType);
+                // }
             }
         }
 

@@ -202,7 +202,13 @@ namespace MoviesAPI.Controllers
                 }
             }
 
-            await context.Database.ExecuteSqlInterpolatedAsync($"delete from MoviesActors where MovieId = {movieDB.Id}; delete from MoviesGenres where MovieId = {movieDB.Id}");
+            //DEBUG: ExecuteSqlInterpolatedAsync wasn't working wiht EF COre In-memory data provider for UT
+            // await context.Database.ExecuteSqlInterpolatedAsync($"delete from MoviesActors where MovieId = {movieDB.Id}; delete from MoviesGenres where MovieId = {movieDB.Id}");
+            var moviesActorToRemove =  context.MoviesActors.Where(x => x.MovieId == movieDB.Id);
+            context.MoviesActors.RemoveRange(moviesActorToRemove);
+            var moviesGenreToRemove =  context.MoviesGenres.Where(x => x.MovieId == movieDB.Id);
+            context.MoviesGenres.RemoveRange(moviesGenreToRemove);
+
 
             AnnotateOrder(movieDB);
 
