@@ -1,9 +1,11 @@
-﻿using Microsoft.Azure.Storage.Blob;
-using Microsoft.Azure.Storage;
+﻿//using Microsoft.Azure.Storage.Blob;
+//using Microsoft.Azure.Storage;
 using Microsoft.Extensions.Configuration;
 using System.IO;
 using System.Threading.Tasks;
 using System;
+using Azure.Storage.Blobs;
+using Azure.Storage.Blobs.Models;
 
 namespace MoviesAPI.Services
 {
@@ -20,12 +22,11 @@ namespace MoviesAPI.Services
         {
             if (fileRoute != null)
             {
-                var account = CloudStorageAccount.Parse(connectionString);
-                var client = account.CreateCloudBlobClient();
-                var container = client.GetContainerReference(containerName);
+                BlobServiceClient blobServiceClient = new(connectionString);
+                var container = blobServiceClient.GetBlobContainerClient(containerName);
 
                 var blobName = Path.GetFileName(fileRoute);
-                var blob = container.GetBlobReference(blobName);
+                var blob = container.GetBlobClient(blobName);
                 await blob.DeleteIfExistsAsync();
             }
         }
@@ -38,20 +39,20 @@ namespace MoviesAPI.Services
 
         public async Task<string> SaveFile(byte[] content, string extension, string containerName, string contentType)
         {
-            CloudStorageAccount account = CloudStorageAccount.Parse(connectionString);
-            CloudBlobClient client = account.CreateCloudBlobClient();
-            CloudBlobContainer container = client.GetContainerReference(containerName);
-            await container.CreateIfNotExistsAsync();
-            await container.SetPermissionsAsync(new BlobContainerPermissions
-            {
-                PublicAccess = BlobContainerPublicAccessType.Blob
-            });
+            BlobServiceClient blobServiceClient = new BlobServiceClient(connectionString);
+            var container = blobServiceClient.GetBlobContainerClient(containerName);
 
+            await container.CreateIfNotExistsAsync();
+            await container.SetAccessPolicyAsync(PublicAccessType.Blob);
             string fileName = $"{Guid.NewGuid()}{extension}";
-            CloudBlockBlob blob = container.GetBlockBlobReference(fileName);
-            await blob.UploadFromByteArrayAsync(buffer: content, index: 0, count: content.Length);
-            blob.Properties.ContentType = contentType;
-            await blob.SetPropertiesAsync();
+
+            var blob = container.GetBlobClient(fileName);
+
+            await blob.UploadAsync(new MemoryStream(content),
+                 new BlobHttpHeaders()
+                 {
+                     ContentType = contentType,
+                 });
             return blob.Uri.ToString();
         }
     }
