@@ -101,6 +101,8 @@ namespace MoviesAPI.Controllers
                                                         string container) where TEntity : class, IId, new()
         {
             var tEntity = await context.Set<TEntity>().AsNoTracking().FirstOrDefaultAsync(x => x.Id == id);
+            if (tEntity is null) { return NotFound(); }
+            
             var picureEntity = tEntity as IPicture;
             await fileStorageService.DeleteFile(fileRoute: picureEntity.Picture, containerName: container);
             return await Delete<TEntity>(id);
