@@ -90,6 +90,7 @@ namespace MoviesAPI.Tests.UnitTests
             var newGenre = new GenreCreationDTO() { Name = "New Genre" };
 
             var controller = new GenresController(loggerMock, context, mapper);
+            controller.ControllerContext = BuildControllerContextWithDefaultUser();
 
             var response = await controller.Post(newGenre);
             var result = response as CreatedAtRouteResult;

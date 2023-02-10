@@ -74,6 +74,10 @@ namespace MoviesAPI.Controllers
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Admin")]
         public async Task<ActionResult> Post([FromBody] GenreCreationDTO genreCreation)
         {
+            if (User.Identity.IsAuthenticated)
+            {
+                logger.LogInformation(User.Identity.Name);
+            }
             return await Post<GenreCreationDTO, Genre, GenreDTO>(genreCreation, "getGenre");
         }
 

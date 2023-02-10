@@ -1,4 +1,7 @@
+using System.Security.Claims;
 using AutoMapper;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 // using Microsoft.AspNetCore.Mvc.Testing;
 // using Microsoft.AspNetCore.TestHost;
 using Microsoft.EntityFrameworkCore;
@@ -28,19 +31,19 @@ namespace MoviesAPI.Tests
             return config.CreateMapper();
         }
 
-        // protected ControllerContext BuildControllerContextWithDefaultUser()
-        // {
-        //     var user = new ClaimsPrincipal(new ClaimsIdentity(new Claim[]
-        //        {
-        //         new Claim(ClaimTypes.Name, "example@hotmail.com"),
-        //         new Claim(ClaimTypes.Email, "example@hotmail.com"),
-        //        }, "test"));
+        protected ControllerContext BuildControllerContextWithDefaultUser()
+        {
+            var user = new ClaimsPrincipal(new ClaimsIdentity(new Claim[]
+               {
+                new Claim(ClaimTypes.Name, "example@hotmail.com"),
+                new Claim(ClaimTypes.Email, "example@hotmail.com"),
+               }, "test"));
 
-        //     return new ControllerContext()
-        //     {
-        //         HttpContext = new DefaultHttpContext() { User = user }
-        //     };
-        // }
+            return new ControllerContext()
+            {
+                HttpContext = new DefaultHttpContext() { User = user }
+            };
+        }
 
         // protected WebApplicationFactory<Startup> BuildWebApplicationFactory(string databaseName, 
         //     bool bypassSecurity = true)
