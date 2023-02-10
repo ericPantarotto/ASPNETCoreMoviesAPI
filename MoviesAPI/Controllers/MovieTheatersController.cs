@@ -16,12 +16,10 @@ namespace MoviesAPI.Controllers
     [Route("api/movietheaters")]
     public class MovieTheatersController: ControllerBase
     {
-        private readonly IMapper mapper;
         private readonly ApplicationDbContext context;
 
-        public MovieTheatersController(IMapper mapper, ApplicationDbContext applicationDbContext)
+        public MovieTheatersController(ApplicationDbContext applicationDbContext)
         {
-            this.mapper = mapper;
             this.context = applicationDbContext;
         }
 
