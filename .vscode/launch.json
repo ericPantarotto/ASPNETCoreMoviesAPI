@@ -10,7 +10,7 @@
       "request": "launch",
       "preLaunchTask": "build",
       // If you have changed target frameworks, make sure to update the program path.
-      "program": "${workspaceFolder}/MoviesAPI/bin/Debug/netcoreapp3.1/MoviesAPI.dll",
+      "program": "${workspaceFolder}/MoviesAPI/bin/Debug/net7.0/MoviesAPI.dll",
       "args": [],
       "cwd": "${workspaceFolder}/MoviesAPI",
       "stopAtEntry": false,
