@@ -1,10 +1,15 @@
+using System.Linq;
 using System.Security.Claims;
 using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Testing;
+using Microsoft.AspNetCore.TestHost;
 // using Microsoft.AspNetCore.Mvc.Testing;
 // using Microsoft.AspNetCore.TestHost;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using MoviesAPI.Data;
 using MoviesAPI.Helpers;
 
@@ -45,41 +50,37 @@ namespace MoviesAPI.Tests
             };
         }
 
-        // protected WebApplicationFactory<Startup> BuildWebApplicationFactory(string databaseName, 
-        //     bool bypassSecurity = true)
-        // {
-        //     var factory = new WebApplicationFactory<Startup>();
+        protected WebApplicationFactory<Startup> BuildWebApplicationFactory(string databaseName, 
+            bool bypassSecurity = true)
+        {
+            var factory = new WebApplicationFactory<Startup>();
 
-        //     factory = factory.WithWebHostBuilder(builder =>
-        //     {
-        //         builder.ConfigureTestServices(services =>
-        //         {
-        //             var descriptorDbContext = services.SingleOrDefault(d =>
-        //             d.ServiceType == typeof(DbContextOptions<ApplicationDbContext>));
+            factory = factory.WithWebHostBuilder(builder =>
+            {
+                builder.ConfigureTestServices(services =>
+                {
+                    var descriptorDbContext = services.SingleOrDefault(d =>
+                    d.ServiceType == typeof(DbContextOptions<ApplicationDbContext>));
 
-        //             if (descriptorDbContext != null)
-        //             {
-        //                 services.Remove(descriptorDbContext);
-        //             }
+                    if (descriptorDbContext != null)
+                    {
+                        services.Remove(descriptorDbContext);
+                    }
 
-        //             services.AddDbContext<ApplicationDbContext>(options =>
-        //             {
-        //                 options.UseInMemoryDatabase(databaseName);
-        //             });
+                    services.AddDbContext<ApplicationDbContext>(options =>
+                        options.UseInMemoryDatabase(databaseName));
 
-        //             if (bypassSecurity)
-        //             {
-        //                 services.AddSingleton<IAuthorizationHandler, AllowAnonymousHandler>();
+                    if (bypassSecurity)
+                    {
+                        services.AddSingleton<IAuthorizationHandler, AllowAnonymousHandler>();
 
-        //                 services.AddControllers(options =>
-        //                 {
-        //                     options.Filters.Add(new FakeUserFilter());
-        //                 });
-        //             }
-        //         });
-        //     });
+                        services.AddControllers(options =>
+                            options.Filters.Add(new FakeUserFilter()));
+                    }
+                });
+            });
 
-        //     return factory;
-        // }
+            return factory;
+        }
     }
 }

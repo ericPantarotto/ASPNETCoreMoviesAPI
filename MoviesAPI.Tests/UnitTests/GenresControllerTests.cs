@@ -137,7 +137,6 @@ namespace MoviesAPI.Tests.UnitTests
             var loggerMock = new Mock<ILogger<GenresController>>();
 
             var controller = new GenresController(loggerMock.Object, context, mapper);
-            // controller.ControllerContext = BuildControllerContextWithDefaultUser();
 
             var response = await controller.Delete(1);
             var result = response as StatusCodeResult;
@@ -158,7 +157,6 @@ namespace MoviesAPI.Tests.UnitTests
             var context2 = BuildContext(databaseName);
 
             var controller = new GenresController(loggerMock, context2, mapper);
-            // controller.ControllerContext = BuildControllerContextWithDefaultUser();
 
             var response = await controller.Delete(1);
             var result = response as StatusCodeResult;
