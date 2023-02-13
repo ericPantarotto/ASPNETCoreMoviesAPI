@@ -9,6 +9,8 @@ using Microsoft.Extensions.Azure;
 using Azure.Storage.Queues;
 using Azure.Storage.Blobs;
 using Azure.Core.Extensions;
+using MoviesAPI.Helpers;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 
 namespace MoviesAPI
 {
@@ -57,9 +59,23 @@ namespace MoviesAPI
                 .WithOrigins("https://resttesttest.com")
                 .WithMethods("GET", "POST")
                 .AllowAnyHeader());
-            
+
             //DEBUG: if we want to customize it at controller or endpoint level
             // app.UseCors();
+
+            app.UseEndpoints(endpoints =>
+            {
+                endpoints.MapHealthChecks("/health/ready", new HealthCheckOptions
+                {
+                    ResponseWriter = HealthCheckResponseWriter.WriteResponseReadiness,
+                    Predicate = (check) => check.Tags.Contains("ready")
+                });
+                endpoints.MapHealthChecks("/health/live", new HealthCheckOptions
+                {
+                    ResponseWriter = HealthCheckResponseWriter.WriteResponseLiveness,
+                    Predicate = (check) => !check.Tags.Contains("ready")
+                });
+            });
 
             app.UseEndpoints(endpoints =>
             {
