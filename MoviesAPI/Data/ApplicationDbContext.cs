@@ -22,6 +22,7 @@ namespace MoviesAPI.Data
             modelBuilder.Entity<MoviesActors>().HasKey(x => new { x.PersonId, x.MovieId});
 
             SeedData(modelBuilder);
+            TempSeedData(modelBuilder);
 
             base.OnModelCreating(modelBuilder);
         }
@@ -33,6 +34,14 @@ namespace MoviesAPI.Data
         public DbSet<MoviesGenres> MoviesGenres { get; set; }
         public DbSet<MoviesActors> MoviesActors { get; set; }
         public DbSet<MovieTheater> MovieTheaters { get; set; }
+        
+        private void TempSeedData(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<Genre>()
+                .HasData(new Genre() { Id = 8, Name = "Temp Genre" });
+            modelBuilder.Entity<Genre>()
+                .HasData(new Genre() { Id = 9, Name = "Genre from Azure App Service" });
+        }
         private void SeedData(ModelBuilder modelBuilder)
         {
             var adventure = new Genre() { Id = 4, Name = "Adventure" };
